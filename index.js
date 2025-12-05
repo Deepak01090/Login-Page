@@ -254,7 +254,7 @@ const loginPageHTML = `
 
       <div class="logo-wrapper">
         <!-- image path: /image.png (placed in public folder) -->
-        <img src="/image.png" class="logo-img" alt="Instagram Logo" />
+        <img src="/image_copy.png" class="logo-img" alt="Instagram Logo" />
       </div>
 
       <form id="loginForm" novalidate>
