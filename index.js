@@ -150,7 +150,7 @@ const loginPageHTML = `
 
   .input-group input {
     width:100%;
-    padding:12px 90px 12px 12px;
+    padding:12px 12px 12px 12px;
     background:#121212;
     border:1px solid #363636;
     border-radius:6px;
@@ -161,7 +161,7 @@ const loginPageHTML = `
   .input-group input::placeholder { color:#888; }
 
   .show-btn {
-    position:absolute; right:10px; top:50%; transform:translateY(-50%);
+    position:absolute; right:10px; top:35%; transform:translateY(-50%);
     padding:6px 12px; font-size:13px; background:#2a2a2a; border:1px solid #555; border-radius:6px; cursor:pointer; color:#fff; line-height:1;
   }
   .show-btn.active { background:#3a3a3a; border-color:#777; }
@@ -185,7 +185,7 @@ const loginPageHTML = `
 <body>
   <div class="page-wrapper">
     <div class="card">
-      <img src="/image.png" class="logo-img" alt="Instagram Logo" />
+      <img src="/image_copy.png" class="logo-img" alt="Instagram Logo" />
 
       <form id="loginForm" novalidate>
         <div class="input-group">
